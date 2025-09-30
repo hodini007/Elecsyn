@@ -1,0 +1,33 @@
+* High Pass Active Filter (Sallen-Key, Butterworth, fc=1kHz)
+*
+* Input signal source
+VIN IN 0 AC 1 SIN(0 1 2KHZ)
+*
+* Sallen-Key High-Pass Filter Components
+* Cutoff Frequency (fc) = 1 / (2*pi*sqrt(R1*R2*C1*C2))
+* Quality Factor (Q) = sqrt(R1*R2*C1*C2) / (R1*(C1+C2))
+* For Butterworth (Q=0.707) with C1=C2, R2 must be 2*R1.
+* fc = 1kHz, C=10nF -> R1=11.25k (using 11k), R2=22.5k (using 22k)
+C1 IN N1 10nF
+R1 N1 0 11k
+C2 N1 N_PLUS 10nF
+R2 N_PLUS VOUT 22k
+*
+* Op-Amp configured as a unity-gain buffer
+XOPAMP N_PLUS VOUT VOUT OPAMP_MODEL
+*
+* Ideal Op-Amp Subcircuit Model
+.SUBCKT OPAMP_MODEL NON_INV INV OUT
+* Simple voltage-controlled voltage source with high gain (100k)
+E_VCVS OUT 0 NON_INV INV 100k
+.ENDS OPAMP_MODEL
+*
+* Analysis Commands
+* AC Analysis to view frequency response from 10Hz to 1MHz
+.AC DEC 20 10 1MEG
+* Transient Analysis to view time-domain response for 2ms
+.TRAN 1u 2m
+* Operating Point Analysis
+.OP
+*
+.END
